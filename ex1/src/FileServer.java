@@ -40,28 +40,6 @@ public class FileServer {
     }
 
 
-//    public Boolean recursiveSearch(String query, File dir){
-//        File[] files = dir.listFiles();
-//        System.out.println("I'm looking for "+query);
-//        for(File file : files){
-//            System.out.println("Current File - "+file.getName());
-//            if(file.getName().equals(query)){
-//                selectedFile = file;
-//                return true;
-//            }
-//
-//            if (file.isDirectory()){
-//                String query2 = query.toString();
-//                query2.substring(query2.indexOf('/')+1); //Remove first '/' in query.
-//                System.out.println("New folder search: "+query2 + " within folder "+file.getName());
-//                recursiveSearch(query2, file);
-//            }
-//        }
-//        System.out.println("Couldn't find file. 404!");
-//        return false;
-//    }
-
-
     public File getIndex(){
         return getFile("/index.html");
     }

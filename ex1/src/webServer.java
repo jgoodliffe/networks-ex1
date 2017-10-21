@@ -48,7 +48,7 @@ public class webServer {
 
             while(true){
                 Socket clientSocket = serverSocket.accept(); //Create arraylist of threads...? (to keep track of number of clients)
-                System.out.println("Got a new client: "+ clientSocket.getRemoteSocketAddress());
+                System.out.println("NEW REQUEST FROM: "+ clientSocket.getRemoteSocketAddress());
 
                 //Removing inactive serverThread instances each time a new client attempts to connect.
                 for(int i=0; i<clients.size(); i++){
@@ -68,7 +68,7 @@ public class webServer {
                 clients.get(clientNumber).start();
 
                 //Inform the user of the number of clients connected to the server.
-                System.out.println("INFORMATION: There are now " + clients.size() + " clients connected to the server! ");
+                //System.out.println("INFORMATION: There are now " + clients.size() + " clients connected to the server! ");
 
             }
         } catch (IOException e) {
