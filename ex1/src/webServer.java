@@ -14,11 +14,8 @@ import java.util.ArrayList;
  * An index page is provided when visited with a null URI.
  * Handles subsequent requests arising from clicking on the items in the index.
  *
- * James Goodliffe 2017
+ * @author James Goodliffe 2017
  */
-
-
-
 
 public class webServer {
 
@@ -37,8 +34,14 @@ public class webServer {
     public static void main(String[] args){
         ArrayList<serverThread> clients;
 
+        //Validation to check against correct number of arguments.
+        if(args.length != 1){
+            System.err.println("Error: An incorrect number of arguments were supplied. Make sure you provide a Port Number!");
+            System.exit(1);
+        }
+
         //Set port number from Argument supplied to program.
-        port =8080;
+        port = Integer.parseInt(args[0]);
 
         try {
             clients = new ArrayList<>();
@@ -47,8 +50,8 @@ public class webServer {
 
 
             while(true){
-                Socket clientSocket = serverSocket.accept(); //Create arraylist of threads...? (to keep track of number of clients)
-                System.out.println("NEW REQUEST FROM: "+ clientSocket.getRemoteSocketAddress());
+                Socket clientSocket = serverSocket.accept();
+                //System.out.println("NEW REQUEST FROM: "+ clientSocket.getRemoteSocketAddress());
 
                 //Removing inactive serverThread instances each time a new client attempts to connect.
                 for(int i=0; i<clients.size(); i++){
@@ -61,14 +64,12 @@ public class webServer {
                     clients.get(i).setID(i);
                 }
 
-
                 //Keeping track of the number of clients connected.
                 int clientNumber = clients.size();
+
+                //Start a new thread to handle the client:
                 clients.add(new serverThread(clientSocket, clientNumber));
                 clients.get(clientNumber).start();
-
-                //Inform the user of the number of clients connected to the server.
-                //System.out.println("INFORMATION: There are now " + clients.size() + " clients connected to the server! ");
 
             }
         } catch (IOException e) {

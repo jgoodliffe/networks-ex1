@@ -3,10 +3,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-
+/**
+ * HTTP Web Server - Input Handler
+ * @author James Goodliffe, 2017
+ *
+ * Reads an HTTP v1.1 Request from an InputStream
+ */
 public class InputHandler {
     private Scanner input;
 
+    /**
+     * InputHandler Constructor
+     * @param socket - the socket from which the input is collected.
+     */
     public InputHandler(java.net.Socket socket){
         try {
             InputStream i = socket.getInputStream();
@@ -18,6 +27,10 @@ public class InputHandler {
 
     }
 
+    /**
+     * read
+     * @return a line of the HTTP Request
+     */
     public String read() {
         String line;
         try{
@@ -28,6 +41,9 @@ public class InputHandler {
         return line;
     }
 
+    /**
+     * close - Closes the input handler.
+     */
     public void close(){
         input.close();
     }

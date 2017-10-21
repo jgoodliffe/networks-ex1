@@ -1,20 +1,37 @@
+/**
+ * HTTP Web Server - Output Handler
+ * @author James Goodliffe, 2017
+ *
+ * Handles all output related tasks.
+ */
+
 import java.io.*;
 import java.net.Socket;
 
 public class OutputHandler {
+
+    //Variable declaration:
     private PrintStream out;
     private OutputStream outMain;
 
+    /**
+     * OutputHandler
+     * Handles all output related things - actually returning the relevant data to the client!
+     * @param socket The client socket to be actioned on.
+     */
     public OutputHandler (Socket socket){
         try{
             out = new PrintStream(socket.getOutputStream(),true);
             outMain = socket.getOutputStream();
 
-        } catch (IOException e){
+        } catch (IOException e){ //Should never reach here but just in case
             e.printStackTrace();
         }
     }
 
+    /**
+     * Closes the PrintStream.
+     */
     public void close(){
             out.close();
     }
@@ -51,83 +68,91 @@ public class OutputHandler {
         return type;
     }
 
-    //todo - add support for image content types.
-    // illegal and incomprehensible urls???
+    /**
+     * Print Page - Responsible for writing RAW output to the client, actually serving the request.
+     * @param page - the page file to be printed
+     */
     public void printPage(File page) {
         try{
+
+            //Get content type:
             String contentType = getContentType(page);
 
-            if(!contentType.equals("text/html; Charset=UTF-8") || !contentType.equals("text/txt")){
-                System.out.println("NON-HTML DOCUMENT");
+            //Check what type of file the document is:
+            if(!contentType.equals("text/html; Charset=UTF-8")){
+                //If File isn't an HTML/Text Document:
+                //System.out.println("NON-HTML DOCUMENT");
 
+                //Set up byte array and Buffered input stream
+                //Read from file into byte array:
                 byte[] bytes = new byte[(int)page.length()];
                 FileInputStream fis = new FileInputStream(page);
                 BufferedInputStream bis = new BufferedInputStream(fis);
                 bis.read(bytes, 0, bytes.length);
 
+                //Acquire length of page:
                 long contentLength = page.length();
 
+                //Write the HTTP Header via the PrintStream:
                 out.println("HTTP/1.1 200 OK");
                 out.println("Content-Length: " + contentLength);
                 out.println("Content-Type: "+contentType);
                 out.println("");
 
+                //Write document directly to Output stream:
                 outMain.write(bytes,0,bytes.length);
+
+                //Close + Exit:
                 outMain.close();
                 out.flush();
                 out.close();
                 fis.close();
-            } else {
 
-                System.out.println("HTML OR TEXT DOCUMENT");
+            } else { //If file is HTML or TEXT document:
+
+                //Set up byte array and input handling:
                 int length = 0;
                 FileInputStream fileIn = new FileInputStream(page);
                 byte[] bytes = new byte[(int) page.length()];
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
+                //Read the bytes of the file into a byte array:
                 while ((length = fileIn.read(bytes)) != -1) {
                     bos.write(bytes, 0, length);
                 }
                 bos.flush();
                 bos.close();
 
+                //Write the byte array to a single string which can be printed:
                 byte[] data1 = bos.toByteArray();
                 String dataStr = new String(data1, "UTF-8");
 
-                //String contentType = getContentType(page);
+                //Acquire length of content.
                 long contentLength = page.length();
 
+
+                //Returning the HTTP Header:
                 out.println("HTTP/1.1 200 OK");
                 out.println("Content-Length: " + contentLength);
                 out.println("Content-Type: " + contentType);
                 out.println("");
+
+                //Print page content:
                 out.println(dataStr);
 
+                //Finally flushing output before closing the output.
                 out.flush();
                 out.close();
                 fileIn.close();
 
-//            FileReader fileReader = new FileReader(page);
-//            BufferedReader bufferedReader = new BufferedReader(fileReader);
-//            long length = page.length();
-//            String line;
-//
-//            String contentType = getContentType(page);
-//
-//            out.write("HTTP/1.1 200 OK\r\n");
-//            out.write("Content-Length: " + length + "\r\n");
-//            out.write("Content-Type: "+contentType+"\r\n\r\n\r\n");
-
-
-//            while((line = bufferedReader.readLine()) != null) {
-//                out.write(line +"\n");
-//                //System.out.println("Printed something");
-//            }
-
             }
-        } catch(IOException e){
+        } catch(IOException e){ //Shouldn't ever reach here but just in case!
+            System.err.println("Error opening file to be sent: ");
             e.printStackTrace();
-            System.err.println("Failed to open the file");
+
+            //Return a 500 Error:
+            File file = new File("ex1/web/500.html");
+            printPage(file);
         }
         out.flush();
     }
