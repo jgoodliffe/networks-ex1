@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Page3</title>
+</head>
+<style>
+    h1 {color: white; font-family: "Helvetica Neue"; font-style: oblique; text-align: center}
+    body {color: white; font-family: "Helvetica Neue"; font-style: normal; text-align: center}
+
+    .wrapper {
+        height: 100%;
+        width: 100%;
+        left:0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        position: absolute;
+        background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+        background-size: 1800% 1800%;
+
+        -webkit-animation: rainbow 18s ease infinite;
+        -z-animation: rainbow 18s ease infinite;
+        -o-animation: rainbow 18s ease infinite;
+        animation: rainbow 18s ease infinite;}
+
+    @-webkit-keyframes rainbow {
+        0%{background-position:0% 82%}
+        50%{background-position:100% 19%}
+        100%{background-position:0% 82%}
+    }
+    @-moz-keyframes rainbow {
+        0%{background-position:0% 82%}
+        50%{background-position:100% 19%}
+        100%{background-position:0% 82%}
+    }
+    @-o-keyframes rainbow {
+        0%{background-position:0% 82%}
+        50%{background-position:100% 19%}
+        100%{background-position:0% 82%}
+    }
+    @keyframes rainbow {
+        0%{background-position:0% 82%}
+        50%{background-position:100% 19%}
+        100%{background-position:0% 82%}
+    }
+    footer{width: 100%; position: fixed; bottom:0}
+</style>
+<body>
+<div class="wrapper"></div>
+<h1> <marquee behavior="alternate"  >A really super mega awesome page </marquee></h1>
+</body>
+<footer>
+    <marquee>
+    <p> Networks Exercise 1 Project</p>
+    <p> James Goodliffe, 2017</p>
+    </marquee>
+</footer>
+</html>
