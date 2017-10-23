@@ -58,16 +58,14 @@ public class serverThread extends Thread{
                 lineOfData = bufferedReader.readLine();
             }
 
-
-
             //Use RequestHandler to parse line of request:
             RequestHandler r = RequestHandler.parse(receivedData);
-            //System.out.println(receivedData);
 
             //Dealing with a GET request:
             if(r.getRequestLine().getMethod().equals("GET")){
                 String requestedFile = r.getRequestLine().URI;
 
+                //Check if the client supports Gzip compression and if so give them a compressed page:
                 if(r.getRequestLine().getGzip()){
                     switch (requestedFile){
                         case "/":   out.printPageGZip(filesvr.getIndex());
@@ -78,6 +76,7 @@ public class serverThread extends Thread{
                             break;
                     }
                 } else{
+                    //Without Gzip compression:
                     //If a null url - show the index. Else, look for the requested file.
                     switch (requestedFile){
                         case "/":   out.printPage(filesvr.getIndex());

@@ -67,29 +67,29 @@ public class RequestHandler {
      * @return a RequestHandler formatted request.
      */
     public static RequestHandler parse (List<String> lines){
-        //System.out.println("NEW REQUEST");
+
+        //Get first line of HTTP Header
         String requestLineString = lines.get(0);
+
+        //Retrieve the accepted encodings (for gzip support):
         String accept = "";
         for(int i=0; i<lines.size(); i++){
             if (lines.get(i).contains("Accept-Encoding:")){
                 accept = lines.get(i);
             }
         }
-        //System.out.println(accept);
 
+        //Retrieving method, URI & Status from HTTP Request Header:
         String[] requestLineArray = requestLineString.split(" ");
         String method = requestLineArray[0];
         String URI = requestLineArray[1];
         String status = requestLineArray[2];
 
-        //System.out.println("NEW:"+acceptedEncodings);
+        //Retrieve whether client accepts gzip:
         boolean gzip = false;
         if(accept.contains("gzip")){
             gzip = true;
         }
-
-        System.out.println(gzip);
-
 
         //Create new request line:
         RequestLine requestLine = new RequestLine(URI, method, status, gzip);
