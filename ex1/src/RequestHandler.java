@@ -69,12 +69,13 @@ public class RequestHandler {
     public static RequestHandler parse (List<String> lines){
         //System.out.println("NEW REQUEST");
         String requestLineString = lines.get(0);
-        String acceptedEncodings = " ";
-        if(lines.size()>=7){
-            String accept = lines.get(6);
-            String[] acceptedEncodingsLineArray = accept.split(" ");
-            acceptedEncodings = acceptedEncodingsLineArray[1];
+        String accept = "";
+        for(int i=0; i<lines.size(); i++){
+            if (lines.get(i).contains("Accept-Encoding:")){
+                accept = lines.get(i);
+            }
         }
+        //System.out.println(accept);
 
         String[] requestLineArray = requestLineString.split(" ");
         String method = requestLineArray[0];
@@ -83,11 +84,11 @@ public class RequestHandler {
 
         //System.out.println("NEW:"+acceptedEncodings);
         boolean gzip = false;
-        if(acceptedEncodings.contains("gzip")){
+        if(accept.contains("gzip")){
             gzip = true;
         }
 
-        //System.out.println(gzip);
+        System.out.println(gzip);
 
 
         //Create new request line:

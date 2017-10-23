@@ -57,38 +57,38 @@ public class serverThread extends Thread{
                 receivedData.add(lineOfData);
                 lineOfData = bufferedReader.readLine();
             }
-            
+
+
 
             //Use RequestHandler to parse line of request:
             RequestHandler r = RequestHandler.parse(receivedData);
+            //System.out.println(receivedData);
 
             //Dealing with a GET request:
             if(r.getRequestLine().getMethod().equals("GET")){
                 String requestedFile = r.getRequestLine().URI;
 
-//                if(r.getRequestLine().getGzip()){
-//                    switch (requestedFile){
-//                        case "/":   out.printPageGZip(filesvr.getIndex());
-//                            break;
-//                        case "/..": out.printPageGZip(filesvr.get403());
-//                            break;
-//                        default:    out.printPageGZip(filesvr.getFile(requestedFile));
-//                            break;
-//                    }
-//                }
-
-
-                //If a null url - show the index. Else, look for the requested file.
-                switch (requestedFile){
-                    case "/":   out.printPage(filesvr.getIndex());
-                                break;
-                    case "/..": out.printPage(filesvr.get403());
-                                break;
-                    default:    out.printPage(filesvr.getFile(requestedFile));
-                                break;
+                if(r.getRequestLine().getGzip()){
+                    switch (requestedFile){
+                        case "/":   out.printPageGZip(filesvr.getIndex());
+                            break;
+                        case "/..": out.printPageGZip(filesvr.get403());
+                            break;
+                        default:    out.printPageGZip(filesvr.getFile(requestedFile));
+                            break;
+                    }
+                } else{
+                    //If a null url - show the index. Else, look for the requested file.
+                    switch (requestedFile){
+                        case "/":   out.printPage(filesvr.getIndex());
+                            break;
+                        case "/..": out.printPage(filesvr.get403());
+                            break;
+                        default:    out.printPage(filesvr.getFile(requestedFile));
+                            break;
+                    }
                 }
             }
-
 
             //Dealing with a POST request is much the same as dealing with a GET Request:
             if(r.getRequestLine().getMethod().equals("POST")){

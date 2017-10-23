@@ -30,6 +30,19 @@ public class OutputHandler {
         }
     }
 
+    private static byte[] gzipCompress(byte[] uncompressedData) {
+        byte[] result = new byte[]{};
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(uncompressedData.length);
+             GZIPOutputStream gzipOS = new GZIPOutputStream(bos)) {
+            gzipOS.write(uncompressedData);
+            gzipOS.close();
+            result = bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public String responseType (File page){
         if (page.getName().contains("404.html")){
             return "HTTP/1.1 404 NOT FOUND";
@@ -173,17 +186,23 @@ public class OutputHandler {
         out.flush();
     }
 
+
+    //Dealing with clients that are able to support GZip:
+
+    /**
+     * printPageGZip
+     * Serving a page to a client that is able to support gZip compression
+     * @param page the requested page.
+     */
     public void printPageGZip(File page) {
         try{
-            //GZIPOutputStream gZipOut = new GZIPOutputStream(outMain);
-
             //Get content type:
             String contentType = getContentType(page);
 
             //Check what type of file the document is:
             if(!contentType.equals("text/html; Charset=UTF-8")){
                 //If File isn't an HTML/Text Document:
-                //System.out.println("NON-HTML DOCUMENT");
+
 
                 //Set up byte array and Buffered input stream
                 //Read from file into byte array:
@@ -192,8 +211,11 @@ public class OutputHandler {
                 BufferedInputStream bis = new BufferedInputStream(fis);
                 bis.read(bytes, 0, bytes.length);
 
-                //Acquire length of page:
-                long contentLength = page.length();
+                //As we're outputting in GZip, compress the content:
+                byte[] compressedBytes = gzipCompress(bytes);
+
+                //Acquire length of compressed page:
+                long contentLength = compressedBytes.length;
 
                 //Write the HTTP Header via the PrintStream:
                 out.println(responseType(page));
@@ -203,14 +225,13 @@ public class OutputHandler {
                 out.println("");
 
                 //Write document directly to Output stream:
-                outMain.write(bytes,0,bytes.length);
+                outMain.write(compressedBytes,0,compressedBytes.length);
 
                 //Close + Exit:
-                //gZipOut.finish();
                 outMain.close();
                 out.flush();
                 out.close();
-                fis.close();
+
 
             } else { //If file is HTML or TEXT document:
 
@@ -224,27 +245,25 @@ public class OutputHandler {
                 while ((length = fileIn.read(bytes)) != -1) {
                     bos.write(bytes, 0, length);
                 }
-                bos.flush();
-                bos.close();
 
-                //Write the byte array to a single string which can be printed:
-                byte[] data1 = bos.toByteArray();
-                String dataStr = new String(data1, "UTF-8");
+                //As we're outputting in GZip, output the compressed page:
+                byte[] compressedBytes = gzipCompress(bytes);
 
-                //Acquire length of content.
-                long contentLength = page.length();
-
+                //Acquire length of compressed content.
+                long contentLength = compressedBytes.length;
 
                 //Returning the HTTP Header:
                 out.println(responseType(page));
                 out.println("Content-Length: " + contentLength);
                 out.println("Content-Type: " + contentType);
+                out.println("Content-Encoding: gzip");
                 out.println("");
 
-                //Print page content:
-                out.println(dataStr);
+                //Print page content
+                outMain.write(compressedBytes);
 
                 //Finally flushing output before closing the output.
+                outMain.close();
                 out.flush();
                 out.close();
                 fileIn.close();
