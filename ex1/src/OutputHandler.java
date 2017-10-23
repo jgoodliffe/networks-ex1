@@ -7,6 +7,7 @@
 
 import java.io.*;
 import java.net.Socket;
+import java.util.zip.GZIPOutputStream;
 
 public class OutputHandler {
 
@@ -28,6 +29,20 @@ public class OutputHandler {
             e.printStackTrace();
         }
     }
+
+    public String responseType (File page){
+        if (page.getName().contains("404.html")){
+            return "HTTP/1.1 404 NOT FOUND";
+        }
+        if(page.getName().contains("403.html")){
+            return "HTTP/1.1 403 FORBIDDEN";
+        }
+        if(page.getName().contains("500.html")){
+            return "HTTP/1.1 500 INTERNAL SERVER ERROR";
+        }
+        return "HTTP/1.1 200 OK";
+    }
+
 
     /**
      * Closes the PrintStream.
@@ -93,8 +108,9 @@ public class OutputHandler {
                 //Acquire length of page:
                 long contentLength = page.length();
 
+
                 //Write the HTTP Header via the PrintStream:
-                out.println("HTTP/1.1 200 OK");
+                out.println(responseType(page));
                 out.println("Content-Length: " + contentLength);
                 out.println("Content-Type: "+contentType);
                 out.println("");
@@ -132,7 +148,7 @@ public class OutputHandler {
 
 
                 //Returning the HTTP Header:
-                out.println("HTTP/1.1 200 OK");
+                out.println(responseType(page));
                 out.println("Content-Length: " + contentLength);
                 out.println("Content-Type: " + contentType);
                 out.println("");
@@ -157,4 +173,91 @@ public class OutputHandler {
         out.flush();
     }
 
+    public void printPageGZip(File page) {
+        try{
+            //GZIPOutputStream gZipOut = new GZIPOutputStream(outMain);
+
+            //Get content type:
+            String contentType = getContentType(page);
+
+            //Check what type of file the document is:
+            if(!contentType.equals("text/html; Charset=UTF-8")){
+                //If File isn't an HTML/Text Document:
+                //System.out.println("NON-HTML DOCUMENT");
+
+                //Set up byte array and Buffered input stream
+                //Read from file into byte array:
+                byte[] bytes = new byte[(int)page.length()];
+                FileInputStream fis = new FileInputStream(page);
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                bis.read(bytes, 0, bytes.length);
+
+                //Acquire length of page:
+                long contentLength = page.length();
+
+                //Write the HTTP Header via the PrintStream:
+                out.println(responseType(page));
+                out.println("Content-Length: " + contentLength);
+                out.println("Content-Type: "+contentType);
+                out.println("Content-Encoding: gzip");
+                out.println("");
+
+                //Write document directly to Output stream:
+                outMain.write(bytes,0,bytes.length);
+
+                //Close + Exit:
+                //gZipOut.finish();
+                outMain.close();
+                out.flush();
+                out.close();
+                fis.close();
+
+            } else { //If file is HTML or TEXT document:
+
+                //Set up byte array and input handling:
+                int length = 0;
+                FileInputStream fileIn = new FileInputStream(page);
+                byte[] bytes = new byte[(int) page.length()];
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+                //Read the bytes of the file into a byte array:
+                while ((length = fileIn.read(bytes)) != -1) {
+                    bos.write(bytes, 0, length);
+                }
+                bos.flush();
+                bos.close();
+
+                //Write the byte array to a single string which can be printed:
+                byte[] data1 = bos.toByteArray();
+                String dataStr = new String(data1, "UTF-8");
+
+                //Acquire length of content.
+                long contentLength = page.length();
+
+
+                //Returning the HTTP Header:
+                out.println(responseType(page));
+                out.println("Content-Length: " + contentLength);
+                out.println("Content-Type: " + contentType);
+                out.println("");
+
+                //Print page content:
+                out.println(dataStr);
+
+                //Finally flushing output before closing the output.
+                out.flush();
+                out.close();
+                fileIn.close();
+
+            }
+        } catch(IOException e){ //Shouldn't ever reach here but just in case!
+            System.err.println("Error opening file to be sent: ");
+            e.printStackTrace();
+
+            //Return a 500 Error:
+            File file = new File("ex1/web/500.html");
+            printPage(file);
+        }
+        out.flush();
+    }
 }

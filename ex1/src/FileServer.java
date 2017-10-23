@@ -28,10 +28,9 @@ public class FileServer {
      */
     public File getFile(String query){
         try{
-            query = "ex1/web"+query;
+            query = "ex1/web" +query;
             //System.out.println(query);
             File file = new File(query);
-
             if(!file.isFile()){
                 return get404();
             }

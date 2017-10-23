@@ -8,11 +8,13 @@ public class RequestLine {
     public String URI;
     public String method;
     public String status;
+    public Boolean gzip;
 
-    public RequestLine(String uri, String method, String status) {
+    public RequestLine(String uri, String method, String status, Boolean gzip) {
         this.URI = uri;
         this.method = method;
         this.status = status;
+        this.gzip = gzip;
     }
 
     /**
@@ -37,6 +39,14 @@ public class RequestLine {
      */
     public String getStatus() {
         return status;
+    }
+
+    /**
+     * getGzip
+     * @return gzip status
+     */
+    public Boolean getGzip(){
+        return gzip;
     }
 
     /**

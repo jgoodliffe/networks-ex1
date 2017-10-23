@@ -1,3 +1,7 @@
+import com.sun.deploy.net.HttpRequest;
+import com.sun.deploy.net.HttpUtils;
+
+import javax.xml.ws.spi.http.HttpHandler;
 import java.util.*;
 
 /**
@@ -63,14 +67,31 @@ public class RequestHandler {
      * @return a RequestHandler formatted request.
      */
     public static RequestHandler parse (List<String> lines){
+        //System.out.println("NEW REQUEST");
         String requestLineString = lines.get(0);
+        String acceptedEncodings = " ";
+        if(lines.size()>=7){
+            String accept = lines.get(6);
+            String[] acceptedEncodingsLineArray = accept.split(" ");
+            acceptedEncodings = acceptedEncodingsLineArray[1];
+        }
+
         String[] requestLineArray = requestLineString.split(" ");
         String method = requestLineArray[0];
         String URI = requestLineArray[1];
         String status = requestLineArray[2];
 
+        //System.out.println("NEW:"+acceptedEncodings);
+        boolean gzip = false;
+        if(acceptedEncodings.contains("gzip")){
+            gzip = true;
+        }
+
+        //System.out.println(gzip);
+
+
         //Create new request line:
-        RequestLine requestLine = new RequestLine(URI, method, status);
+        RequestLine requestLine = new RequestLine(URI, method, status, gzip);
 
         List <String> headerList = lines.subList(1, lines.size()-1);
         Map<String, String> headersMap = new HashMap<>();
@@ -107,4 +128,5 @@ public class RequestHandler {
     public void close(){
         input.close();
     }
+
 }

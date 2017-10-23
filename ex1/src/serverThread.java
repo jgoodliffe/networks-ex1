@@ -57,14 +57,26 @@ public class serverThread extends Thread{
                 receivedData.add(lineOfData);
                 lineOfData = bufferedReader.readLine();
             }
+            
 
             //Use RequestHandler to parse line of request:
             RequestHandler r = RequestHandler.parse(receivedData);
 
             //Dealing with a GET request:
             if(r.getRequestLine().getMethod().equals("GET")){
-
                 String requestedFile = r.getRequestLine().URI;
+
+//                if(r.getRequestLine().getGzip()){
+//                    switch (requestedFile){
+//                        case "/":   out.printPageGZip(filesvr.getIndex());
+//                            break;
+//                        case "/..": out.printPageGZip(filesvr.get403());
+//                            break;
+//                        default:    out.printPageGZip(filesvr.getFile(requestedFile));
+//                            break;
+//                    }
+//                }
+
 
                 //If a null url - show the index. Else, look for the requested file.
                 switch (requestedFile){
@@ -77,9 +89,21 @@ public class serverThread extends Thread{
                 }
             }
 
-            //I haven't implemented POST Support.
+
+            //Dealing with a POST request is much the same as dealing with a GET Request:
             if(r.getRequestLine().getMethod().equals("POST")){
-                System.err.println("POST Request received.");
+                //System.out.println("Got a POST Request!");
+                String requestedFile = r.getRequestLine().URI;
+
+                //If a null url - show the index. Else, look for the requested file.
+                switch (requestedFile){
+                    case "/":   out.printPage(filesvr.getIndex());
+                        break;
+                    case "/..": out.printPage(filesvr.get403());
+                        break;
+                    default:    out.printPage(filesvr.getFile(requestedFile));
+                        break;
+                }
             }
 
             //Finally close all relevant utilities when we've fulfilled the request.
@@ -87,7 +111,6 @@ public class serverThread extends Thread{
             in.close();
             bufferedReader.close();
             clientSocket.close();
-            stop();
 
         } catch(IOException e){ //Should never reach here.
             out.printPage(filesvr.get500()); //Show 500 Error.
